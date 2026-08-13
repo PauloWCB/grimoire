@@ -180,7 +180,7 @@
     <section id="tab-combat" class="tab-content">
       <div class="card">
         <div class="card-header">
-          <h2 class="card-title"><i class="fa-solid fa-swords"></i> Ordem de Iniciativa</h2>
+          <h2 class="card-title"><i class="fa-solid fa-shield-halved"></i> Ordem de Iniciativa</h2>
           <button class="btn-primary" style="width: auto; padding: 6px 12px; min-height: 36px; font-size: 12px;" onclick="openAddCombatantModal()">
             + Adicionar
           </button>
@@ -246,6 +246,21 @@
       <span>Mestre</span>
     </button>
   </nav>
+
+  <!-- Edit Character Modal -->
+  <div class="modal-overlay" id="charModal">
+    <div class="modal-card">
+      <h3 style="font-size: 18px; font-weight: 700; color: var(--md-sys-color-primary); margin-bottom: 12px;">Editar Personagem</h3>
+      <input type="text" id="editNameInput" class="input-field" placeholder="Nome do Personagem">
+      <input type="text" id="editClassInput" class="input-field" placeholder="Classe e Nível (ex: Mago Nível 3)">
+      <input type="number" id="editHpInput" class="input-field" placeholder="HP Máximo">
+      <input type="number" id="editAcInput" class="input-field" placeholder="Classe de Armadura (CA)">
+      <div style="display: flex; gap: 8px; margin-top: 12px;">
+        <button class="btn-primary" onclick="saveEditChar()">Salvar</button>
+        <button class="btn-primary" style="background-color: transparent; color: #fff;" onclick="closeModal('charModal')">Cancelar</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Add Combatant Modal -->
   <div class="modal-overlay" id="combatModal">

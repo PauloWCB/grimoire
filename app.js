@@ -331,6 +331,34 @@ window.generateRandomNpc = function() {
 };
 
 // Initial Render on load
-document.addEventListener('DOMContentLoaded', () => {
+window.openEditCharModal = function() {
+  const c = gameState.character;
+  document.getElementById('editNameInput').value = c.name;
+  document.getElementById('editClassInput').value = c.class;
+  document.getElementById('editHpInput').value = c.maxHp;
+  document.getElementById('editAcInput').value = c.ac;
+  document.getElementById('charModal').classList.add('open');
+};
+
+window.saveEditChar = function() {
+  const name = document.getElementById('editNameInput').value || 'Personagem';
+  const charClass = document.getElementById('editClassInput').value || 'Aventureiro';
+  const maxHp = parseInt(document.getElementById('editHpInput').value || 20, 10);
+  const ac = parseInt(document.getElementById('editAcInput').value || 10, 10);
+
+  gameState.character.name = name;
+  gameState.character.class = charClass;
+  gameState.character.maxHp = maxHp;
+  if (gameState.character.hp > maxHp) gameState.character.hp = maxHp;
+  gameState.character.ac = ac;
+
+  closeModal('charModal');
+  renderCharacter();
+  saveStateToFirebase();
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => renderAll());
+} else {
   renderAll();
-});
+}
