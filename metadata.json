@@ -1,0 +1,6 @@
+{
+  "name": "Grimoire",
+  "description": "Grimório de Aventura - RPG Character Sheet, Spells, Inventory and Dice Tray",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
