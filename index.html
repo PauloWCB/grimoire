@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Grimoire - D&D 5e RPG Manager</title>
+
+  <!-- PWA & iOS Safari Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Grimoire">
+  <meta name="theme-color" content="#141218">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/assets/icon-192.png">
+
+  <!-- Google Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+  <!-- Top App Header -->
+  <header>
+    <div class="brand">
+      <span class="brand-icon">🔮</span>
+      <div>
+        <div class="brand-title">Grimoire 5e</div>
+        <div style="font-size: 10px; color: #a881ff;">Mesa de RPG ao Vivo</div>
+      </div>
+    </div>
+    <div class="sync-badge" id="syncStatus">
+      <span class="sync-dot"></span>
+      <span id="syncText">Conectado ao Firebase</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- TAB 1: FICHA DE PERSONAGEM -->
+    <section id="tab-character" class="tab-content active">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title" id="charName">Valeros</h2>
+            <div style="font-size: 12px; color: var(--md-sys-color-on-surface-variant);" id="charClass">Guerreiro Nível 3 (Humano)</div>
+          </div>
+          <button class="btn-primary" style="width: auto; padding: 6px 12px; min-height: 36px; font-size: 12px;" onclick="openEditCharModal()">
+            <i class="fa-solid fa-pen"></i> Editar
+          </button>
+        </div>
+
+        <!-- HP Section -->
+        <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700;">
+            <span>Pontos de Vida (HP)</span>
+            <span><span id="currentHp">28</span> / <span id="maxHp">28</span> HP</span>
+          </div>
+          <div class="hp-bar-container">
+            <div class="hp-bar-fill" id="hpBarFill" style="width: 100%;"></div>
+          </div>
+          <div class="hp-controls">
+            <button class="btn-icon" onclick="adjustHp(-5)">-5</button>
+            <button class="btn-icon" onclick="adjustHp(-1)">-1</button>
+            <button class="btn-icon" style="background-color: var(--md-sys-color-primary-container); color: #fff;" onclick="adjustHp(1)">+1</button>
+            <button class="btn-icon" style="background-color: var(--md-sys-color-primary-container); color: #fff;" onclick="adjustHp(5)">+5</button>
+          </div>
+        </div>
+
+        <!-- Combat Quick Stats -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px;">
+          <div class="stat-box">
+            <div class="stat-label">Classe Armadura</div>
+            <div class="stat-value" id="statAc">16</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Iniciativa</div>
+            <div class="stat-value" id="statInit">+2</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Deslocamento</div>
+            <div class="stat-value" id="statSpeed">9m</div>
+          </div>
+        </div>
+
+        <!-- 6 Main D&D Stats Grid -->
+        <div class="stats-grid" id="statsGrid">
+          <!-- Rendered via JS -->
+        </div>
+
+        <!-- Rest Buttons -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px;">
+          <button class="btn-primary" style="background-color: var(--md-sys-color-surface-container-high); color: #fff;" onclick="triggerRest('short')">
+            <i class="fa-solid fa-mug-hot"></i> Descanso Curto
+          </button>
+          <button class="btn-primary" onclick="triggerRest('long')">
+            <i class="fa-solid fa-campground"></i> Descanso Longo
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: GRIMÓRIO DE MAGIAS -->
+    <section id="tab-spells" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title"><i class="fa-solid fa-hat-wizard"></i> Espaços de Magia (*Spell Slots*)</h2>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px;" id="spellSlotsGrid">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <input type="text" id="spellSearch" class="input-field" placeholder="🔍 Buscar magia (ex: Bola de Fogo, Cura)..." oninput="filterSpells()">
+
+        <div id="spellsList">
+          <!-- Spells list dynamically rendered -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: BANDEJA DE DADOS 3D / ROLLER -->
+    <section id="tab-dice" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title"><i class="fa-solid fa-dice-d20"></i> Bandeja de Dados da Mesa</h2>
+        </div>
+
+        <div class="roll-display">
+          <div style="font-size: 12px; color: var(--md-sys-color-on-surface-variant);" id="lastRollLabel">Última Rolagem</div>
+          <div class="roll-result-val" id="lastRollResult">20</div>
+          <div class="roll-details" id="lastRollDetails">d20 + 3 (Modificador) = 23 (SUCESSO CRÍTICO!)</div>
+        </div>
+
+        <div style="margin-bottom: 12px; display: flex; gap: 8px;">
+          <input type="number" id="diceMod" class="input-field" style="margin-bottom: 0;" value="0" placeholder="Modificador (ex: +3)">
+        </div>
+
+        <div class="dice-grid">
+          <button class="dice-btn" onclick="rollDice(4)">
+            <div class="dice-name">d4</div>
+            <div class="dice-sub">Dano Leve</div>
+          </button>
+          <button class="dice-btn" onclick="rollDice(6)">
+            <div class="dice-name">d6</div>
+            <div class="dice-sub">Espada/Arco</div>
+          </button>
+          <button class="dice-btn" onclick="rollDice(8)">
+            <div class="dice-name">d8</div>
+            <div class="dice-sub">Arma 1M</div>
+          </button>
+          <button class="dice-btn" onclick="rollDice(10)">
+            <div class="dice-name">d10</div>
+            <div class="dice-sub">Truque/Dano</div>
+          </button>
+          <button class="dice-btn" onclick="rollDice(12)">
+            <div class="dice-name">d12</div>
+            <div class="dice-sub">Bárbaro/Machado</div>
+          </button>
+          <button class="dice-btn" style="border-color: var(--md-sys-color-primary);" onclick="rollDice(20)">
+            <div class="dice-name">d20</div>
+            <div class="dice-sub">Ataque/Teste</div>
+          </button>
+          <button class="dice-btn" onclick="rollDice(100)">
+            <div class="dice-name">d100</div>
+            <div class="dice-sub">Porcentagem</div>
+          </button>
+        </div>
+
+        <h3 style="font-size: 14px; margin-bottom: 8px; color: var(--md-sys-color-primary);">Histórico de Rolagens da Mesa</h3>
+        <div class="log-list" id="diceLogList">
+          <!-- Log rendered in real-time -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: GERENCIADOR DE COMBATE -->
+    <section id="tab-combat" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title"><i class="fa-solid fa-swords"></i> Ordem de Iniciativa</h2>
+          <button class="btn-primary" style="width: auto; padding: 6px 12px; min-height: 36px; font-size: 12px;" onclick="openAddCombatantModal()">
+            + Adicionar
+          </button>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+          <button class="btn-primary" onclick="nextCombatTurn()">
+            Próximo Turno <i class="fa-solid fa-forward"></i>
+          </button>
+          <button class="btn-primary" style="background-color: var(--md-sys-color-surface-container-high); color: #fff;" onclick="resetCombat()">
+            Reiniciar
+          </button>
+        </div>
+
+        <div id="combatList">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: FERRAMENTAS DO MESTRE / DM -->
+    <section id="tab-dm" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title"><i class="fa-solid fa-crown"></i> Ferramentas do Mestre (DM)</h2>
+        </div>
+
+        <button class="btn-primary" style="margin-bottom: 12px;" onclick="generateRandomNpc()">
+          <i class="fa-solid fa-dice"></i> Gerar NPC Aleatório
+        </button>
+
+        <div id="npcDisplay" style="display: none; background: var(--md-sys-color-surface-container-high); padding: 12px; border-radius: 12px; margin-bottom: 16px;">
+          <h3 id="npcName" style="color: var(--md-sys-color-primary); font-size: 16px; font-weight: 700;"></h3>
+          <p id="npcDetails" style="font-size: 13px; color: var(--md-sys-color-on-surface-variant); margin-top: 4px;"></p>
+        </div>
+
+        <h3 style="font-size: 14px; margin-bottom: 8px; color: var(--md-sys-color-primary);">Anotações do Mestre</h3>
+        <textarea id="dmNotes" class="input-field" style="height: 120px;" placeholder="Escreva informações secretas da campanha, pistas ou itens..."></textarea>
+      </div>
+    </section>
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="switchTab('character', this)">
+      <i class="fa-solid fa-user-shield"></i>
+      <span>Ficha</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('spells', this)">
+      <i class="fa-solid fa-wand-magic-sparkles"></i>
+      <span>Magias</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('dice', this)">
+      <i class="fa-solid fa-dice-d20"></i>
+      <span>Dados</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('combat', this)">
+      <i class="fa-solid fa-shield-halved"></i>
+      <span>Combate</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('dm', this)">
+      <i class="fa-solid fa-crown"></i>
+      <span>Mestre</span>
+    </button>
+  </nav>
+
+  <!-- Add Combatant Modal -->
+  <div class="modal-overlay" id="combatModal">
+    <div class="modal-card">
+      <h3 style="font-size: 18px; font-weight: 700; color: var(--md-sys-color-primary); margin-bottom: 12px;">Adicionar Combatente</h3>
+      <input type="text" id="combName" class="input-field" placeholder="Nome (ex: Goblin, Valeros)">
+      <input type="number" id="combInit" class="input-field" placeholder="Iniciativa (ex: 18)">
+      <input type="number" id="combHp" class="input-field" placeholder="HP Máximo (ex: 12)">
+      <select id="combType" class="input-field">
+        <option value="Jogador">Jogador / Aliado</option>
+        <option value="Inimigo">Inimigo / Monstro</option>
+      </select>
+      <div style="display: flex; gap: 8px; margin-top: 12px;">
+        <button class="btn-primary" onclick="addCombatant()">Salvar</button>
+        <button class="btn-primary" style="background-color: transparent; color: #fff;" onclick="closeModal('combatModal')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase JavaScript SDK Modular v10 -->
+  <script type="module" src="/app.js"></script>
+
+  <!-- Service Worker Registration for PWA -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(console.error);
+    }
+  </script>
+</body>
+</html>
