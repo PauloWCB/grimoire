@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "146338216554",
+    "project_id": "grimoire-ee2b4",
+    "storage_bucket": "grimoire-ee2b4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:146338216554:android:dfc39444260a0af6e5e813",
+        "android_client_info": {
+          "package_name": "com.aistudio.grimoire.rpgsheet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDD1X_h9GXl6mZppZZ6l_A2tUdSq14iTE8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

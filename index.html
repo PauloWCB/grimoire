@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Grimoire - D&D 5e RPG Manager</title>
+
+  <!-- PWA & iOS Safari Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Grimoire">
+  <meta name="theme-color" content="#100B1E">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/assets/icon-192.png">
+
+  <!-- Google Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+  <!-- Header Bar -->
+  <header>
+    <div class="header-brand">
+      <span style="font-size: 22px;">🔮</span>
+      <div>
+        <div class="brand-title">GRIMOIRE</div>
+        <div class="brand-sub">Mesa D&D 5e Sincronizada</div>
+      </div>
+    </div>
+    <div class="sync-badge" id="syncStatus">
+      <span class="sync-dot"></span>
+      <span id="syncText">Ao Vivo (Firebase)</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- TAB 1: PERSONAGEM -->
+    <section id="tab-character" class="tab-content active">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <div>
+            <h2 class="card-title" style="font-size: 22px;" id="charName">Valeros</h2>
+            <div style="font-size: 13px; color: var(--arcane-purple-light); font-weight: 600;" id="charClass">Humano Guerreiro Nível 3</div>
+            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;" id="charMeta">Soldado | Leal e Bom</div>
+          </div>
+          <button class="btn-action" style="padding: 6px 12px;" onclick="openEditCharModal()">
+            <i class="fa-solid fa-pen-to-square"></i> Editar
+          </button>
+        </div>
+
+        <!-- HP & Health Section -->
+        <div style="background-color: var(--arcane-surface-variant); border-radius: 12px; padding: 12px; margin: 14px 0; border: 1px solid var(--arcane-border);">
+          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700;">
+            <span>Pontos de Vida (HP)</span>
+            <span style="color: var(--health-green);" id="hpDisplay">28 / 28 HP</span>
+          </div>
+          <div class="hp-progress">
+            <div class="hp-fill" id="hpBarFill" style="width: 100%;"></div>
+          </div>
+          <div class="btn-group-grid">
+            <button class="btn-action" onclick="adjustHp(-5)">-5</button>
+            <button class="btn-action" onclick="adjustHp(-1)">-1</button>
+            <button class="btn-action" style="background-color: var(--arcane-purple);" onclick="adjustHp(1)">+1</button>
+            <button class="btn-action" style="background-color: var(--arcane-purple);" onclick="adjustHp(5)">+5</button>
+          </div>
+        </div>
+
+        <!-- 5 Vital Stats Row (CA, Iniciativa, Deslocamento, Proficiência, Percepção Passiva) -->
+        <div class="stat-box-row">
+          <div class="stat-box">
+            <div class="stat-box-label">CA</div>
+            <div class="stat-box-value" id="statAc">16</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">INIT</div>
+            <div class="stat-box-value" id="statInit">+2</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">DESL</div>
+            <div class="stat-box-value" id="statSpeed">9m</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">PROF</div>
+            <div class="stat-box-value" id="statProf">+2</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-label">PERC</div>
+            <div class="stat-box-value" id="statPerc">11</div>
+          </div>
+        </div>
+
+        <!-- 6 Attributes Grid -->
+        <h3 style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 800; text-transform: uppercase;">Atributos Primários</h3>
+        <div class="attr-grid" id="attrGrid">
+          <!-- Rendered in app.js -->
+        </div>
+
+        <!-- Currencies Row -->
+        <h3 style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 800; text-transform: uppercase;">Moedas</h3>
+        <div class="currency-row">
+          <div class="curr-item"><div class="curr-label" style="color: var(--curr-pp);">PP</div><div class="curr-val" id="currPp">5</div></div>
+          <div class="curr-item"><div class="curr-label" style="color: var(--curr-po);">PO</div><div class="curr-val" id="currPo">125</div></div>
+          <div class="curr-item"><div class="curr-label" style="color: var(--curr-pe);">PE</div><div class="curr-val" id="currPe">0</div></div>
+          <div class="curr-item"><div class="curr-label" style="color: var(--curr-ps);">PS</div><div class="curr-val" id="currPs">20</div></div>
+          <div class="curr-item"><div class="curr-label" style="color: var(--curr-pc);">PC</div><div class="curr-val" id="currPc">50</div></div>
+        </div>
+
+        <!-- Rest Buttons -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px;">
+          <button class="btn-action" style="padding: 12px;" onclick="triggerRest('short')">
+            ☕ Descanso Curto
+          </button>
+          <button class="btn-primary" onclick="triggerRest('long')">
+            ⛺ Descanso Longo
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: MAGIAS -->
+    <section id="tab-spells" class="tab-content">
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Espaços de Magia (*Spell Slots*)</h2>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0 16px;" id="spellSlotsGrid">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <input type="text" id="spellSearch" class="input-field" placeholder="🔍 Buscar magia (ex: Bola de Fogo, Cura)..." oninput="filterSpells()">
+        <div id="spellsList"></div>
+      </div>
+    </section>
+
+    <!-- TAB 3: INVENTÁRIO -->
+    <section id="tab-inventory" class="tab-content">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h2 class="card-title"><i class="fa-solid fa-shield-halved"></i> Inventário & Equipamentos</h2>
+          <button class="btn-action" style="font-size: 12px;" onclick="openAddItemModal()">+ Item</button>
+        </div>
+
+        <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;" id="inventoryWeight">
+          Carga Total: <strong>14.5 kg</strong> / 120 kg
+        </div>
+
+        <div class="sub-tab-bar">
+          <button class="sub-tab-btn active" onclick="switchInvCategory('Equipado', this)">Equipados</button>
+          <button class="sub-tab-btn" onclick="switchInvCategory('Mochila', this)">Mochila</button>
+          <button class="sub-tab-btn" onclick="switchInvCategory('Consumíveis', this)">Consumíveis</button>
+        </div>
+
+        <div id="itemList"></div>
+      </div>
+    </section>
+
+    <!-- TAB 4: COMBATE -->
+    <section id="tab-combat" class="tab-content">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h2 class="card-title"><i class="fa-solid fa-skull"></i> Rastreador de Combate</h2>
+          <button class="btn-action" style="font-size: 12px;" onclick="openAddCombatantModal()">+ Combatente</button>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+          <button class="btn-primary" onclick="nextCombatTurn()">
+            Próximo Turno <i class="fa-solid fa-forward"></i>
+          </button>
+          <button class="btn-action" onclick="resetCombat()">Reiniciar</button>
+        </div>
+
+        <div id="combatList"></div>
+      </div>
+    </section>
+
+    <!-- TAB 5: DADOS -->
+    <section id="tab-dice" class="tab-content">
+      <div class="card">
+        <h2 class="card-title" style="margin-bottom: 12px;"><i class="fa-solid fa-dice-d20"></i> Bandeja de Dados da Mesa</h2>
+
+        <div class="roll-display">
+          <div style="font-size: 11px; color: var(--text-secondary);" id="lastRollLabel">Última Rolagem da Mesa</div>
+          <div class="roll-result" id="lastRollResult">20</div>
+          <div class="roll-details" id="lastRollDetails">d20 (18) + 2 = 20</div>
+        </div>
+
+        <input type="number" id="diceMod" class="input-field" placeholder="Modificador bônus (ex: +3)" value="0">
+
+        <div class="dice-grid">
+          <div class="dice-card" onclick="rollDice(4)"><div class="dice-title">d4</div><div class="dice-subtitle">Dano</div></div>
+          <div class="dice-card" onclick="rollDice(6)"><div class="dice-title">d6</div><div class="dice-subtitle">Armas</div></div>
+          <div class="dice-card" onclick="rollDice(8)"><div class="dice-title">d8</div><div class="dice-subtitle">1-Mão</div></div>
+          <div class="dice-card" onclick="rollDice(10)"><div class="dice-title">d10</div><div class="dice-subtitle">Truques</div></div>
+          <div class="dice-card" onclick="rollDice(12)"><div class="dice-title">d12</div><div class="dice-subtitle">Machado</div></div>
+          <div class="dice-card" style="border-color: var(--mystic-gold);" onclick="rollDice(20)"><div class="dice-title">d20</div><div class="dice-subtitle">Ataque/Teste</div></div>
+          <div class="dice-card" onclick="rollDice(100)"><div class="dice-title">d100</div><div class="dice-subtitle">Tabela</div></div>
+        </div>
+
+        <h3 style="font-size: 13px; color: var(--arcane-purple-light); margin-bottom: 8px;">Histórico da Mesa ao Vivo</h3>
+        <div id="diceLogList"></div>
+      </div>
+    </section>
+
+    <!-- TAB 6: CAMPANHA -->
+    <section id="tab-campaign" class="tab-content">
+      <div class="card">
+        <h2 class="card-title">🏰 Sombra de Ravenloft</h2>
+        <p style="font-size: 12px; color: var(--text-secondary); margin: 8px 0 14px; line-height: 1.5;">
+          Mistos de névoa e pesadelos cobrem o reino de Barovia. Sob o olhar atento do Conde Strahd, a expedição busca sobreviver.
+        </p>
+
+        <h3 style="font-size: 13px; color: var(--mystic-gold); margin-bottom: 8px;">Diário de Sessões</h3>
+        <div id="sessionLogs"></div>
+      </div>
+    </section>
+
+    <!-- TAB 7: NOTAS -->
+    <section id="tab-notes" class="tab-content">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h2 class="card-title"><i class="fa-solid fa-book-bookmark"></i> Diário & Documentos</h2>
+          <button class="btn-action" style="font-size: 12px;" onclick="openAddNoteModal()">+ Nota</button>
+        </div>
+        <div id="notesList"></div>
+      </div>
+    </section>
+
+    <!-- TAB 8: MESTRE (DM) -->
+    <section id="tab-dm" class="tab-content">
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-crown"></i> Escudo do Mestre (DM)</h2>
+        <button class="btn-primary" style="margin: 12px 0;" onclick="generateRandomNpc()">
+          🎲 Gerar NPC Aleatório
+        </button>
+        <div id="npcDisplay" style="display: none; background-color: var(--arcane-surface-variant); padding: 12px; border-radius: 12px; margin-bottom: 14px;">
+          <h3 id="npcName" style="color: var(--mystic-gold); font-size: 15px; font-weight: 700;"></h3>
+          <p id="npcDetails" style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;"></p>
+        </div>
+
+        <h3 style="font-size: 13px; color: var(--arcane-purple-light); margin-bottom: 6px;">Notas Secretas do Mestre</h3>
+        <textarea id="dmNotes" class="input-field" style="height: 100px;" placeholder="Segredos da campanha, pistas ou recompensas..."></textarea>
+      </div>
+    </section>
+  </main>
+
+  <!-- Bottom Navigation with 8 Tabs -->
+  <div class="bottom-nav-container">
+    <nav class="bottom-nav">
+      <button class="nav-item active" onclick="switchTab('character', this)"><i class="fa-solid fa-user-shield"></i><span>Ficha</span></button>
+      <button class="nav-item" onclick="switchTab('spells', this)"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Magias</span></button>
+      <button class="nav-item" onclick="switchTab('inventory', this)"><i class="fa-solid fa-box-archive"></i><span>Mochila</span></button>
+      <button class="nav-item" onclick="switchTab('combat', this)"><i class="fa-solid fa-skull"></i><span>Combate</span></button>
+      <button class="nav-item" onclick="switchTab('dice', this)"><i class="fa-solid fa-dice-d20"></i><span>Dados</span></button>
+      <button class="nav-item" onclick="switchTab('campaign', this)"><i class="fa-solid fa-dungeon"></i><span>Campanha</span></button>
+      <button class="nav-item" onclick="switchTab('notes', this)"><i class="fa-solid fa-scroll"></i><span>Notas</span></button>
+      <button class="nav-item" onclick="switchTab('dm', this)"><i class="fa-solid fa-crown"></i><span>Mestre</span></button>
+    </nav>
+  </div>
+
+  <!-- Modals -->
+  <div class="modal-overlay" id="charModal">
+    <div class="modal-card">
+      <h3 style="font-size: 18px; font-weight: 700; color: var(--mystic-gold); margin-bottom: 12px;">Editar Personagem</h3>
+      <input type="text" id="editNameInput" class="input-field" placeholder="Nome">
+      <input type="text" id="editClassInput" class="input-field" placeholder="Raça & Classe (ex: Guerreiro 3)">
+      <input type="number" id="editHpInput" class="input-field" placeholder="HP Máximo">
+      <input type="number" id="editAcInput" class="input-field" placeholder="CA">
+      <div style="display: flex; gap: 8px; margin-top: 12px;">
+        <button class="btn-primary" onclick="saveEditChar()">Salvar</button>
+        <button class="btn-action" onclick="closeModal('charModal')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="combatModal">
+    <div class="modal-card">
+      <h3 style="font-size: 18px; font-weight: 700; color: var(--mystic-gold); margin-bottom: 12px;">Adicionar Combatente</h3>
+      <input type="text" id="combName" class="input-field" placeholder="Nome (ex: Goblin, Valeros)">
+      <input type="number" id="combInit" class="input-field" placeholder="Iniciativa (ex: 15)">
+      <input type="number" id="combHp" class="input-field" placeholder="HP Máximo">
+      <select id="combType" class="input-field">
+        <option value="Jogador">Jogador / Aliado</option>
+        <option value="Inimigo">Inimigo / Monstro</option>
+      </select>
+      <div style="display: flex; gap: 8px; margin-top: 12px;">
+        <button class="btn-primary" onclick="addCombatant()">Salvar</button>
+        <button class="btn-action" onclick="closeModal('combatModal')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="itemModal">
+    <div class="modal-card">
+      <h3 style="font-size: 18px; font-weight: 700; color: var(--mystic-gold); margin-bottom: 12px;">Adicionar Item</h3>
+      <input type="text" id="itemName" class="input-field" placeholder="Nome do Item">
+      <select id="itemCat" class="input-field">
+        <option value="Equipado">Equipado</option>
+        <option value="Mochila">Mochila</option>
+        <option value="Consumíveis">Consumíveis</option>
+      </select>
+      <input type="number" id="itemQty" class="input-field" placeholder="Quantidade" value="1">
+      <input type="number" step="0.1" id="itemWeight" class="input-field" placeholder="Peso (kg)" value="1">
+      <div style="display: flex; gap: 8px; margin-top: 12px;">
+        <button class="btn-primary" onclick="addItem()">Adicionar</button>
+        <button class="btn-action" onclick="closeModal('itemModal')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase JavaScript SDK Modular -->
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

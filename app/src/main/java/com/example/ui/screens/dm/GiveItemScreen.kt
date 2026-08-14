@@ -1,0 +1,183 @@
+package com.example.ui.screens.dm
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.data.model.CampaignMemberEntity
+import com.example.ui.theme.BackgroundDark
+import com.example.ui.theme.DividerColor
+import com.example.ui.theme.OnSurface
+import com.example.ui.theme.OnSurfaceVariant
+import com.example.ui.theme.PrimaryGold
+import com.example.ui.theme.SurfaceBase
+import com.example.ui.theme.SurfaceRaised
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GiveItemScreen(
+    members: List<CampaignMemberEntity>,
+    onClose: () -> Unit,
+    onConfirmGive: (String, String, Int, Int, String) -> Unit
+) {
+    var selectedMemberName by remember {
+        mutableStateOf(members.firstOrNull()?.characterName ?: "Thalric Ironfoot")
+    }
+    var itemName by remember { mutableStateOf("Poção de Cura Maior") }
+    var quantity by remember { mutableStateOf("2") }
+    var gpValue by remember { mutableStateOf("150") }
+    var properties by remember { mutableStateOf("Recupera 4d4 + 4 de HP") }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Column {
+                        Text("Presentear Jogador com Item", fontFamily = FontFamily.Serif, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = PrimaryGold)
+                        Text("Injeta o item diretamente na mochila do personagem", fontSize = 11.sp, color = OnSurfaceVariant)
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = onClose) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = PrimaryGold)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = BackgroundDark)
+            )
+        },
+        containerColor = SurfaceBase
+    ) { innerPadding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item {
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = SurfaceRaised),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, PrimaryGold.copy(alpha = 0.4f)),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text("SELECIONE O JOGADOR DESTINATÁRIO", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = PrimaryGold, letterSpacing = 1.sp)
+
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            items(members) { m ->
+                                FilterChip(
+                                    selected = selectedMemberName == m.characterName,
+                                    onClick = { selectedMemberName = m.characterName },
+                                    label = { Text("${m.characterName} (${m.playerName})", fontSize = 12.sp) },
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = PrimaryGold,
+                                        selectedLabelColor = Color(0xFF3D2E00),
+                                        containerColor = SurfaceRaised,
+                                        labelColor = OnSurface
+                                    )
+                                )
+                            }
+                        }
+
+                        OutlinedTextField(
+                            value = itemName,
+                            onValueChange = { itemName = it },
+                            label = { Text("Nome do Item / Recompensa") },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = PrimaryGold, unfocusedBorderColor = DividerColor)
+                        )
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            OutlinedTextField(
+                                value = quantity,
+                                onValueChange = { quantity = it },
+                                label = { Text("Quantidade") },
+                                modifier = Modifier.weight(1f),
+                                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = PrimaryGold, unfocusedBorderColor = DividerColor)
+                            )
+                            OutlinedTextField(
+                                value = gpValue,
+                                onValueChange = { gpValue = it },
+                                label = { Text("Valor (PO)") },
+                                modifier = Modifier.weight(1f),
+                                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = PrimaryGold, unfocusedBorderColor = DividerColor)
+                            )
+                        }
+
+                        OutlinedTextField(
+                            value = properties,
+                            onValueChange = { properties = it },
+                            label = { Text("Efeitos / Descrição Curta") },
+                            modifier = Modifier.fillMaxWidth(),
+                            minLines = 2,
+                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = PrimaryGold, unfocusedBorderColor = DividerColor)
+                        )
+                    }
+                }
+            }
+
+            item {
+                Button(
+                    onClick = {
+                        val qtyVal = quantity.toIntOrNull() ?: 1
+                        val gpVal = gpValue.toIntOrNull() ?: 0
+                        onConfirmGive(selectedMemberName, itemName.ifBlank { "Recompensa Secreta" }, qtyVal, gpVal, properties)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryGold, contentColor = Color(0xFF3D2E00)),
+                    modifier = Modifier.fillMaxWidth().height(50.dp)
+                ) {
+                    Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Injetar no Inventário do Jogador", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+    }
+}

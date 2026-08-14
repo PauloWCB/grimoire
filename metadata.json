@@ -1,0 +1,6 @@
+{
+  "name": "Grimoire",
+  "description": "Ficha de Personagem D&D 5e, Grimório de Magias, Gerenciador de Combate e Ferramentas para Mestre e Jogadores.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
