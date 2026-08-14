@@ -24,18 +24,67 @@
 </head>
 <body>
 
+  <!-- Fullscreen Portal & Login Screen -->
+  <div id="portalOverlay" class="portal-screen">
+    <div class="portal-box">
+      <div style="font-size: 40px;">🔮</div>
+      <div class="portal-hero-title">GRIMOIRE</div>
+      <div class="portal-hero-sub">Portal da Mesa & Ficha D&D 5e</div>
+
+      <!-- Portal Tabs (Login / Seleção de Mesa) -->
+      <div class="portal-nav-bar">
+        <button id="pTabLoginBtn" class="portal-nav-btn active" onclick="switchPortalTab('login')">1. Entrar / Conta</button>
+        <button id="pTabTableBtn" class="portal-nav-btn" onclick="switchPortalTab('table')">2. Selecionar Mesa</button>
+      </div>
+
+      <!-- Form 1: Account Login / Register -->
+      <div id="pTabLogin" class="portal-tab-content">
+        <input type="email" id="loginEmail" class="input-field" placeholder="Seu E-mail (ex: jogador@dnd.com)">
+        <input type="text" id="loginName" class="input-field" placeholder="Seu Nome / Nome do Jogador">
+        <input type="password" id="loginPass" class="input-field" placeholder="Sua Senha">
+        <select id="loginRole" class="input-field">
+          <option value="Jogador">Papel: Jogador / Aventureiro</option>
+          <option value="Mestre">Papel: Mestre (DM)</option>
+        </select>
+        <button class="btn-primary" style="margin-top: 8px;" onclick="handleUserAuth()">
+          <i class="fa-solid fa-right-to-bracket"></i> Entrar na Conta
+        </button>
+      </div>
+
+      <!-- Form 2: Table Selection / Creation -->
+      <div id="pTabTable" class="portal-tab-content" style="display: none;">
+        <div style="font-size: 12px; color: var(--arcane-purple-light); margin-bottom: 12px; font-weight: 700;">Digite o Código da Mesa do Mestre ou crie uma nova mesa:</div>
+        <input type="text" id="tableCodeInput" class="input-field" placeholder="Código da Mesa (ex: MESA-BAROVIA)" value="MESA-BAROVIA">
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <button class="btn-primary" onclick="handleJoinTable()">
+            <i class="fa-solid fa-dice-d20"></i> Entrar na Mesa
+          </button>
+          <button class="btn-action" style="padding: 10px;" onclick="generateNewTableCode()">
+            + Criar Código
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Header Bar -->
   <header>
     <div class="header-brand">
       <span style="font-size: 22px;">🔮</span>
       <div>
         <div class="brand-title">GRIMOIRE</div>
-        <div class="brand-sub">Mesa D&D 5e Sincronizada</div>
+        <div class="brand-sub" id="headerSubText">Mesa D&D 5e Sincronizada</div>
       </div>
     </div>
-    <div class="sync-badge" id="syncStatus">
-      <span class="sync-dot"></span>
-      <span id="syncText">Ao Vivo (Firebase)</span>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <div class="user-badge" id="userBadge" onclick="openPortalScreen()">
+        <i class="fa-solid fa-user-gear"></i>
+        <span id="userNameText">Entrar</span>
+      </div>
+      <div class="sync-badge" id="syncStatus">
+        <span class="sync-dot"></span>
+        <span id="syncText">Ao Vivo</span>
+      </div>
     </div>
   </header>
 

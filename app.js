@@ -15,11 +15,18 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// User & Session Portal State
+let currentUser = JSON.parse(localStorage.getItem('grimoire_user') || 'null');
+let currentTableCode = localStorage.getItem('grimoire_table_code') || '';
+let unsubscribeSync = null;
+let docRef = null;
+
 // Initial State (Matching Android Character & Models)
 let gameState = {
   character: {
     name: "Valeros",
     class: "Humano Guerreiro Nível 3",
+    meta: "Soldado | Leal e Bom",
     hp: 28,
     maxHp: 28,
     ac: 16,
@@ -41,6 +48,13 @@ let gameState = {
       { level: 2, current: 2, max: 2 }
     ]
   },
+  spells: [
+    { name: "Mísseis Mágicos", level: 1, school: "Evocação", time: "1 Ação", range: "36m", desc: "Cria 3 dardos de força mágica. Cada dardo causa 1d4 + 1 de dano de força." },
+    { name: "Curar Ferimentos", level: 1, school: "Evocação", time: "1 Ação", range: "Toque", desc: "Uma criatura recupera 1d8 + modificador de habilidade em HP." },
+    { name: "Escudo Mágico", level: 1, school: "Abjuração", time: "1 Reação", range: "Pessoal", desc: "Ganha +5 na CA até o início do seu próximo turno." },
+    { name: "Bola de Fogo", level: 3, school: "Evocação", time: "1 Ação", range: "45m", desc: "Explosão de fogo em esfera de 6m. Causa 8d6 de dano de fogo." },
+    { name: "Luz", level: 0, school: "Evocação", time: "1 Ação", range: "Toque", desc: "Objeto passa a emitir luz brilhante em raio de 6 metros." }
+  ],
   items: [
     { name: "Espada Longa +1", category: "Equipado", qty: 1, weight: 1.5 },
     { name: "Escudo de Aço", category: "Equipado", qty: 1, weight: 3.0 },
@@ -63,37 +77,140 @@ let gameState = {
   sessions: [
     { title: "Sessão 1: Chegada em Barovia", date: "10 de Agosto", summary: "O grupo atravessou os portões de névoa e encontrou a carruagem misteriosa." },
     { title: "Sessão 2: A Casa da Morte", date: "12 de Agosto", summary: "Exploração dos andares superiores e descoberta dos diários secretas." }
-  ]
+  ],
+  dmNotes: ""
 };
 
 let selectedInvCategory = "Equipado";
 
-// Real-time Firestore Sync
-const docRef = doc(db, "table_sessions", "mesa_principal");
+// Connect to Table Session in Firestore
+function connectTableSession(code) {
+  if (unsubscribeSync) unsubscribeSync();
+  currentTableCode = code.toUpperCase().trim();
+  localStorage.setItem('grimoire_table_code', currentTableCode);
 
-onSnapshot(docRef, (docSnap) => {
-  if (docSnap.exists()) {
-    const data = docSnap.data();
-    if (data && data.state) {
-      gameState = data.state;
-      renderAll();
-      const statusText = document.getElementById('syncText');
-      if (statusText) statusText.innerText = 'Sincronizado ao Vivo';
+  docRef = doc(db, "table_sessions", currentTableCode);
+
+  const headerSub = document.getElementById('headerSubText');
+  if (headerSub) headerSub.innerText = `Mesa: ${currentTableCode}`;
+
+  unsubscribeSync = onSnapshot(docRef, (docSnap) => {
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      if (data && data.state) {
+        gameState = data.state;
+        renderAll();
+        const statusText = document.getElementById('syncText');
+        if (statusText) statusText.innerText = `Ao Vivo (${currentTableCode})`;
+      }
+    } else {
+      saveStateToFirebase();
     }
-  } else {
-    saveStateToFirebase();
-  }
-}, (err) => {
-  console.warn("Firestore offline fallback:", err);
-  const statusText = document.getElementById('syncText');
-  if (statusText) statusText.innerText = 'Modo Offline (Local)';
-});
+  }, (err) => {
+    console.warn("Firestore fallback:", err);
+    const statusText = document.getElementById('syncText');
+    if (statusText) statusText.innerText = 'Modo Offline';
+  });
+}
 
 async function saveStateToFirebase() {
+  if (!docRef) return;
   try {
     await setDoc(docRef, { state: gameState, lastUpdated: Date.now() });
   } catch (e) {
     console.error("Erro ao salvar Firestore:", e);
+  }
+}
+
+// Portal & Login Functions
+window.switchPortalTab = function(tab) {
+  const tabLogin = document.getElementById('pTabLogin');
+  const tabTable = document.getElementById('pTabTable');
+  const btnLogin = document.getElementById('pTabLoginBtn');
+  const btnTable = document.getElementById('pTabTableBtn');
+
+  if (tab === 'login') {
+    tabLogin.style.display = 'block';
+    tabTable.style.display = 'none';
+    btnLogin.classList.add('active');
+    btnTable.classList.remove('active');
+  } else {
+    tabLogin.style.display = 'none';
+    tabTable.style.display = 'block';
+    btnLogin.classList.remove('active');
+    btnTable.classList.add('active');
+  }
+};
+
+window.handleUserAuth = function() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const name = document.getElementById('loginName').value.trim();
+  const role = document.getElementById('loginRole').value;
+
+  if (!email || !name) {
+    alert('Por favor, informe seu E-mail e Nome do Jogador.');
+    return;
+  }
+
+  currentUser = { email, name, role };
+  localStorage.setItem('grimoire_user', JSON.stringify(currentUser));
+
+  updateUserHeader();
+  window.switchPortalTab('table');
+};
+
+window.handleJoinTable = function() {
+  const code = document.getElementById('tableCodeInput').value.trim();
+  if (!code) {
+    alert('Por favor, digite o Código da Mesa.');
+    return;
+  }
+
+  if (!currentUser) {
+    alert('Por favor, entre ou crie sua conta primeiro na aba 1.');
+    window.switchPortalTab('login');
+    return;
+  }
+
+  connectTableSession(code);
+
+  const overlay = document.getElementById('portalOverlay');
+  if (overlay) overlay.classList.add('hidden');
+};
+
+window.generateNewTableCode = function() {
+  const randomCode = 'MESA-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+  document.getElementById('tableCodeInput').value = randomCode;
+};
+
+window.openPortalScreen = function() {
+  const overlay = document.getElementById('portalOverlay');
+  if (overlay) overlay.classList.remove('hidden');
+};
+
+function updateUserHeader() {
+  const nameText = document.getElementById('userNameText');
+  if (nameText && currentUser) {
+    nameText.innerText = `${currentUser.name} (${currentUser.role || 'Jogador'})`;
+  }
+}
+
+// Check Portal state on startup
+function initPortalState() {
+  if (currentUser) {
+    updateUserHeader();
+    document.getElementById('loginEmail').value = currentUser.email || '';
+    document.getElementById('loginName').value = currentUser.name || '';
+  }
+
+  if (currentTableCode) {
+    document.getElementById('tableCodeInput').value = currentTableCode;
+    connectTableSession(currentTableCode);
+    if (currentUser) {
+      document.getElementById('portalOverlay').classList.add('hidden');
+    }
+  } else {
+    document.getElementById('portalOverlay').classList.remove('hidden');
   }
 }
 
@@ -457,8 +574,14 @@ window.closeModal = function(id) {
 };
 
 // Init
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => renderAll());
-} else {
+function bootApp() {
   renderAll();
+  initPortalState();
 }
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bootApp);
+} else {
+  bootApp();
+}
+

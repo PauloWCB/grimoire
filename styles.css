@@ -494,3 +494,90 @@ main {
   background-color: var(--arcane-purple);
   color: #fff;
 }
+
+/* Fullscreen Portal & Login Screen */
+.portal-screen {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: var(--arcane-bg);
+  background-image: radial-gradient(circle at 50% 20%, rgba(157, 78, 221, 0.25) 0%, rgba(16, 11, 30, 0.95) 70%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.portal-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+  display: none;
+}
+
+.portal-box {
+  background-color: var(--arcane-surface);
+  border: 1px solid var(--arcane-purple);
+  box-shadow: 0 0 30px rgba(157, 78, 221, 0.3);
+  border-radius: 24px;
+  padding: 24px;
+  width: 100%;
+  max-width: 440px;
+  text-align: center;
+}
+
+.portal-hero-title {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--mystic-gold);
+  letter-spacing: 1px;
+  margin-top: 8px;
+}
+
+.portal-hero-sub {
+  font-size: 13px;
+  color: var(--arcane-purple-light);
+  margin-bottom: 20px;
+}
+
+.portal-nav-bar {
+  display: flex;
+  background-color: var(--arcane-surface-variant);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 20px;
+}
+
+.portal-nav-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.portal-nav-btn.active {
+  background-color: var(--arcane-purple);
+  color: #fff;
+}
+
+.user-badge {
+  font-size: 11px;
+  background: var(--arcane-surface-variant);
+  border: 1px solid var(--arcane-border);
+  padding: 4px 10px;
+  border-radius: 12px;
+  color: var(--mystic-gold);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
